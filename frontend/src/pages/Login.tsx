@@ -27,7 +27,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       if (data.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/search');
+        navigate('/create-post');
       }
     } catch (err: any) {
       const msg = err.response?.data?.error || err.message || 'Đăng nhập thất bại';

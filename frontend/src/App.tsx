@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Search from './pages/Search';
 import Admin from './pages/Admin';
+import PostCreate from './pages/PostCreate';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/search" element={isLoggedIn ? <Search /> : <Navigate to="/login" />} />
         <Route path="/admin" element={isLoggedIn && localStorage.getItem('role') === 'admin' ? <Admin /> : <Navigate to="/login" />} />
+        <Route path="/create-post" element={isLoggedIn ? <PostCreate /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   );

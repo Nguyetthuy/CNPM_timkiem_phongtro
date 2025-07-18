@@ -21,4 +21,8 @@ export class PostService {
   static async approvePost(id: string) {
     return await Post.findByIdAndUpdate(id, { status: 'approved' }, { new: true });
   }
+
+  static async getApprovedPosts() {
+    return await Post.find({ status: 'approved' });
+  }
 }
