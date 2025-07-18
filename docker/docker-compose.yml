@@ -1,0 +1,45 @@
+
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - '27017:27017'
+
+  auth-service:
+    build: ../auth-service
+    ports:
+      - '3001:3001'
+    env_file:
+      - ../auth-service/.env
+    depends_on:
+      - mongo
+
+  post-service:
+    build: ../post-service
+    ports:
+      - '3002:3002'
+    env_file:
+      - ../post-service/.env
+    depends_on:
+      - mongo
+
+  gateway:
+    build: ../gateway
+    ports:
+      - '3000:3000'
+    env_file:
+      - ../gateway/.env
+    depends_on:
+      - auth-service
+      - post-service
+
+  frontend:
+    build: ../frontend
+    ports:
+      - '3005:3005'
+    env_file:
+      - ../frontend/.env
+    depends_on:
+      - gateway

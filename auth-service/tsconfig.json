@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                         // Hỗ trợ cú pháp hiện đại
+    "module": "CommonJS",                       // Phù hợp cho Node.js
+    "outDir": "./dist",                         // Nơi xuất các file JS sau khi build
+    "rootDir": "./src",                         // Thư mục chứa mã nguồn TypeScript
+    "strict": true,                             // Bật kiểm tra chặt chẽ
+    "esModuleInterop": true,                    // Hỗ trợ import các module CommonJS như `import express from 'express'`
+    "skipLibCheck": true,                       // Bỏ qua kiểm tra type của thư viện
+    "forceConsistentCasingInFileNames": true    // Buộc phân biệt hoa thường khi import
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

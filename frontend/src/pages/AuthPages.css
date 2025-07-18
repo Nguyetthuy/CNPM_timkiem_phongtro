@@ -1,0 +1,91 @@
+/* AuthPages.css - CSS dùng chung cho Register, Login, Search */
+
+.auth-container {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(25, 118, 210, 0.08);
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 32px 28px;
+  border: 1.5px solid #90caf9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-title {
+  color: #1976d2;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2rem;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #90caf9;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.auth-input:focus {
+  border: 1.5px solid #1976d2;
+  background: #e3f2fd;
+}
+
+.auth-label {
+  display: block;
+  color: #1976d2;
+  font-weight: 500;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.auth-button {
+  width: 100%;
+  background: linear-gradient(90deg, #1976d2 60%, #64b5f6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+.auth-button:hover {
+  background: linear-gradient(90deg, #1565c0 60%, #42a5f5 100%);
+}
+
+.auth-link {
+  color: #1976d2;
+  font-weight: 500;
+  text-decoration: none;
+}
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-message {
+  width: 100%;
+  text-align: center;
+  padding: 8px 0;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 0.98rem;
+}
+.auth-message.error {
+  background: #ffebee;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+.auth-message.success {
+  background: #e8f5e9;
+  color: #388e3c;
+  border: 1px solid #a5d6a7;
+} 

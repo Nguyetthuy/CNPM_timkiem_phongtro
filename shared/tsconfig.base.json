@@ -1,0 +1,11 @@
+// ===============================
+// shared/tsconfig.base.json
+// ===============================
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true
+  }
+}
