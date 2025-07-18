@@ -1,12 +1,12 @@
 // ===============================
 // gateway/src/index.ts
 // ===============================
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import proxy from 'express-http-proxy';
 import cors from 'cors';
 
 const app = express();
-app.use((req, res, next) => {
+app.use((req: Request, _res: Response, next: NextFunction) => {
   console.log(`[${req.method}] ${req.originalUrl}`);
   next();
 });

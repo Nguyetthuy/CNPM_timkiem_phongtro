@@ -3,7 +3,14 @@ import { PostService } from '../services/post.service';
 
 export class PostController {
   static async create(req: Request, res: Response) {
-    const post = await PostService.createPost(req.body);
+    let images: string[] = [];
+    if (req.files && Array.isArray(req.files)) {
+      images = req.files.map((file: any) => '/uploads/' + file.filename);
+    }
+    const post = await PostService.createPost({
+      ...req.body,
+      images,
+    });
     res.json(post);
   }
 
@@ -20,6 +27,11 @@ export class PostController {
 
   static async getPending(req: Request, res: Response) {
     const posts = await PostService.getPendingPosts();
+    res.json(posts);
+  }
+
+  static async getApproved(req: Request, res: Response) {
+    const posts = await PostService.getApprovedPosts();
     res.json(posts);
   }
 

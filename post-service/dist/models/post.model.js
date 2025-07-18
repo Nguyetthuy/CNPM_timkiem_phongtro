@@ -8,5 +8,7 @@ const postSchema = new mongoose_1.default.Schema({
     title: String,
     content: String,
     author: String,
+    status: { type: String, default: 'pending' }, // Thêm trường status
+    images: [String], // Thêm trường images
 });
 exports.default = mongoose_1.default.model('Post', postSchema);
