@@ -1,17 +1,37 @@
 import { Request, Response } from 'express';
 import { PostService } from '../services/post.service';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'secret123';
 
 export class PostController {
   static async create(req: Request, res: Response) {
-    let images: string[] = [];
-    if (req.files && Array.isArray(req.files)) {
-      images = req.files.map((file: any) => '/uploads/' + file.filename);
+    try {
+      // Lấy userId từ JWT token
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+      
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      const userId = decoded.userId;
+
+      let images: string[] = [];
+      if (req.files && Array.isArray(req.files)) {
+        images = req.files.map((file: any) => '/uploads/' + file.filename);
+      }
+      
+      const post = await PostService.createPost({
+        ...req.body,
+        authorId: userId,
+        images,
+      });
+      res.json(post);
+    } catch (error: any) {
+      console.error('Create post error:', error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
     }
-    const post = await PostService.createPost({
-      ...req.body,
-      images,
-    });
-    res.json(post);
   }
 
   static async getAll(req: Request, res: Response) {

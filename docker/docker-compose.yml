@@ -1,44 +1,78 @@
 version: '3.8'
-
 services:
   mongo:
-    image: mongo
+    image: mongo:6.0
     ports:
-      - '27017:27017'
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
 
   auth-service:
-    build: ../auth-service
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
     ports:
-      - '3001:3001'
-    env_file:
-      - ../auth-service/.env
+      - "3001:3001"
     depends_on:
       - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/findhouse
+      - JWT_SECRET=your-super-secret-jwt-key-here
 
   post-service:
-    build: ../post-service
+    build:
+      context: ../post-service
+      dockerfile: Dockerfile
     ports:
-      - '3002:3002'
-    env_file:
-      - ../post-service/.env
+      - "3002:3002"
     depends_on:
       - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/findhouse
+      - JWT_SECRET=your-super-secret-jwt-key-here
+
+  media-service:
+    build:
+      context: ../media-service
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    volumes:
+      - media_uploads:/app/uploads
+
+  user-service:
+    build:
+      context: ../user-service
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3004"
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/findhouse
+      - JWT_SECRET=your-super-secret-jwt-key-here
 
   gateway:
-    build: ../gateway
+    build:
+      context: ../gateway
+      dockerfile: Dockerfile
     ports:
-      - '3000:3000'
-    env_file:
-      - ../gateway/.env
+      - "3000:3000"
     depends_on:
       - auth-service
       - post-service
+      - media-service
+      - user-service
 
   frontend:
-    build: ../frontend
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     ports:
-      - '3005:3005'
-    env_file:
-      - ../frontend/.env
+      - "3005:3005"
     depends_on:
       - gateway
+
+volumes:
+  mongo_data:
+  media_uploads:

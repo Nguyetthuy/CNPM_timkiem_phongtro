@@ -27,8 +27,14 @@ class AuthService {
         const isMatch = await bcryptjs_1.default.compare(password, user.password);
         if (!isMatch)
             throw new Error('Mật khẩu không đúng');
-        const token = jsonwebtoken_1.default.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1d' });
-        return { message: 'Đăng nhập thành công', token };
+        const token = jsonwebtoken_1.default.sign({ userId: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
+        return { message: 'Đăng nhập thành công', token, role: user.role };
+    }
+    static async getUserById(userId) {
+        const user = await user_model_1.default.findById(userId).select('name email');
+        if (!user)
+            throw new Error('User không tồn tại');
+        return { name: user.name, email: user.email };
     }
 }
 exports.AuthService = AuthService;
