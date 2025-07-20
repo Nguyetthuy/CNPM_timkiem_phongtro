@@ -23,8 +23,14 @@ class PostService {
     static async approvePost(id) {
         return await post_model_1.default.findByIdAndUpdate(id, { status: 'approved' }, { new: true });
     }
+    static async updatePost(id, data) {
+        return await post_model_1.default.findByIdAndUpdate(id, data, { new: true });
+    }
     static async getApprovedPosts() {
         return await post_model_1.default.find({ status: 'approved' });
+    }
+    static async deletePost(id) {
+        return await post_model_1.default.findByIdAndDelete(id);
     }
 }
 exports.PostService = PostService;
