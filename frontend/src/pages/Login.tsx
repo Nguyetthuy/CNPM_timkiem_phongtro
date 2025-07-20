@@ -1,77 +1,102 @@
 // frontend/src/pages/Login.tsx
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { loginApi } from '../api/auth';
 import './AuthPages.css';
 
-interface LoginProps {
-  onLogin: () => void;
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      const data = await loginApi(email, password);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role); // Lưu role
-      onLogin();
-      if (data.role === 'admin') {
+      const response = await loginApi(email, password);
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('role', response.role);
+      
+      // Redirect dựa trên role
+      if (response.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/create-post');
+        navigate('/profile');
       }
     } catch (err: any) {
-      const msg = err.response?.data?.error || err.message || 'Đăng nhập thất bại';
-      setError(msg);
+      const errorMessage = err.response?.data?.error || 'Đăng nhập thất bại';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="auth-container">
-        <h2 className="auth-title">Đăng Nhập</h2>
-        {error && <div className="auth-message error">{error}</div>}
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          <label className="auth-label">Email</label>
+        <h2 className="auth-title">Đăng nhập</h2>
+        <form onSubmit={handleSubmit}>
           <input
+            className="auth-input"
             type="email"
+            placeholder="Email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="auth-input"
-            placeholder="you@example.com"
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <label className="auth-label">Mật khẩu</label>
           <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
             className="auth-input"
-            placeholder="Nhập mật khẩu"
+            type="password"
+            placeholder="Mật khẩu"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button
-            type="submit"
-            className="auth-button"
+          {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+          <button 
+            type="submit" 
+            className="auth-button" 
+            disabled={loading}
+            style={{ 
+              background: loading ? '#ccc' : undefined,
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
           >
-            Đăng nhập
+            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
-        <p style={{ marginTop: 24, width: '100%', textAlign: 'center' }}>
+        <p style={{ textAlign: 'center', marginTop: 16 }}>
           Chưa có tài khoản?{' '}
-          <Link to="/register" className="auth-link">
-            Đăng ký
-          </Link>
+          <button 
+            onClick={() => navigate('/register')} 
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: '#1976d2', 
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
+            Đăng ký ngay
+          </button>
         </p>
+        
+        {/* Admin credentials hint */}
+        <div style={{ 
+          marginTop: 20, 
+          padding: 12, 
+          background: '#f5f5f5', 
+          borderRadius: 8,
+          fontSize: 14,
+          color: '#666'
+        }}>
+          <strong>Admin:</strong> admin@gmail.com / 12345
+        </div>
       </div>
     </div>
   );

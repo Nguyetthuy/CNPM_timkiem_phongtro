@@ -1,0 +1,27 @@
+{
+  "name": "media-service",
+  "version": "1.0.0",
+  "description": "Media service for image upload/download",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.32.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/multer": "^1.4.7",
+    "@types/cors": "^2.8.13",
+    "@types/node": "^20.5.0",
+    "typescript": "^5.1.6",
+    "ts-node": "^10.9.1"
+  }
+} 

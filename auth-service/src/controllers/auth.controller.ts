@@ -24,4 +24,14 @@ export class AuthController {
       res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   }
+
+  static async getUserById(req: Request, res: Response) {
+    try {
+      const result = await AuthService.getUserById(req.params.id);
+      res.status(200).json(result);
+    } catch (error: any) {
+      console.error('Get user error:', error);
+      res.status(404).json({ message: 'User not found', error: error.message });
+    }
+  }
 }

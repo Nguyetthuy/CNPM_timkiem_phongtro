@@ -8,6 +8,7 @@ const userSchema = new mongoose_1.default.Schema({
     name: String,
     email: String,
     password: String,
+    role: { type: String, default: 'user' }, // Thêm trường role, mặc định 'user'
 });
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;

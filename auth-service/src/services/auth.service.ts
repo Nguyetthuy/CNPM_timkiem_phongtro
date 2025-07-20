@@ -29,4 +29,10 @@ export class AuthService {
 
     return { message: 'Đăng nhập thành công', token, role: user.role };
   }
+
+  static async getUserById(userId: string) {
+    const user = await User.findById(userId).select('name email');
+    if (!user) throw new Error('User không tồn tại');
+    return { name: user.name, email: user.email };
+  }
 }

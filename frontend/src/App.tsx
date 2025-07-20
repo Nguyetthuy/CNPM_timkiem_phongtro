@@ -1,33 +1,73 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Header from './components/Header';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Search from './pages/Search';
 import Admin from './pages/Admin';
 import PostCreate from './pages/PostCreate';
+import Profile from './pages/Profile';
+import './App.css';
 
-const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+// Component để kiểm tra authentication
+const PrivateRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({ children, adminOnly = false }) => {
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token); // Cập nhật khi mount
-  }, []);
+  // Kiểm tra role admin nếu cần
+  if (adminOnly) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.role !== 'admin') {
+        return <Navigate to="/profile" replace />;
+      }
+    } catch (error) {
+      return <Navigate to="/login" replace />;
+    }
+  }
 
+  return <>{children}</>;
+};
+
+function App() {
   return (
     <Router>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/search" element={isLoggedIn ? <Search /> : <Navigate to="/login" />} />
-        <Route path="/admin" element={isLoggedIn && localStorage.getItem('role') === 'admin' ? <Admin /> : <Navigate to="/login" />} />
-        <Route path="/create-post" element={isLoggedIn ? <PostCreate /> : <Navigate to="/login" />} />
-      </Routes>
+      <div className="App">
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/search" element={<Search />} />
+          
+          {/* Protected routes */}
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/create-post" element={
+            <PrivateRoute>
+              <PostCreate />
+            </PrivateRoute>
+          } />
+          
+          {/* Admin only routes */}
+          <Route path="/admin" element={
+            <PrivateRoute adminOnly={true}>
+              <Admin />
+            </PrivateRoute>
+          } />
+          
+          {/* Default redirect */}
+          <Route path="/" element={<Navigate to="/profile" replace />} />
+          <Route path="*" element={<Navigate to="/profile" replace />} />
+        </Routes>
+      </div>
     </Router>
   );
-};
+}
 
 export default App;

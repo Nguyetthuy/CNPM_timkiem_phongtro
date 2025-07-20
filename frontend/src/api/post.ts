@@ -20,7 +20,7 @@ export const createPost = async (formData: FormData, token: string) => {
   const res = await axios.post(`${API_URL}/posts`, formData, {
     headers: {
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
+      // Không set Content-Type thủ công, để axios tự động set với boundary
     },
   });
   return res.data;
@@ -29,4 +29,19 @@ export const createPost = async (formData: FormData, token: string) => {
 export const getApprovedPosts = async () => {
   const res = await axios.get(`${API_URL}/posts/approved`);
   return res.data;
+};
+
+// API cho media service
+export const uploadImages = async (formData: FormData, token: string) => {
+  const res = await axios.post(`${API_URL}/media/upload`, formData, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      // Không set Content-Type thủ công, để axios tự động set với boundary
+    },
+  });
+  return res.data;
+};
+
+export const getImageUrl = (filename: string) => {
+  return `${API_URL}/media/images/${filename}`;
 }; 

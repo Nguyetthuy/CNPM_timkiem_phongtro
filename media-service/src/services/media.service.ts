@@ -135,4 +135,4 @@ export class MediaService {
     
     return mimeTypes[ext.toLowerCase()] || 'application/octet-stream';
   }
-} 
+}
