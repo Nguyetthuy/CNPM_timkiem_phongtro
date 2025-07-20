@@ -22,6 +22,10 @@ export class PostService {
     return await Post.findByIdAndUpdate(id, { status: 'approved' }, { new: true });
   }
 
+  static async updatePost(id: string, data: any) {
+    return await Post.findByIdAndUpdate(id, data, { new: true });
+  }
+
   static async getApprovedPosts() {
     return await Post.find({ status: 'approved' });
   }

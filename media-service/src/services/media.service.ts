@@ -13,6 +13,7 @@ export interface ImageInfo {
 
 export class MediaService {
   private uploadDir = 'uploads/images/';
+  private baseUrl = process.env.MEDIA_SERVICE_URL || 'http://localhost:3000/media';
 
   // Upload và xử lý ảnh
   async uploadImage(file: Express.Multer.File): Promise<ImageInfo> {
@@ -28,7 +29,7 @@ export class MediaService {
         size: file.size,
         mimetype: file.mimetype,
         path: imagePath,
-        url: `/images/${file.filename}`
+        url: `${this.baseUrl}/images/${file.filename}`
       };
       
       return imageInfo;
@@ -71,7 +72,7 @@ export class MediaService {
         size: stats.size,
         mimetype,
         path: imagePath,
-        url: `/images/${filename}`
+        url: `${this.baseUrl}/images/${filename}`
       };
     } catch (error) {
       throw new Error(`Lỗi lấy thông tin ảnh: ${error}`);

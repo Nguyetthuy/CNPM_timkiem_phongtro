@@ -19,7 +19,8 @@ export class PostController {
 
       let images: string[] = [];
       if (req.files && Array.isArray(req.files)) {
-        images = req.files.map((file: any) => '/uploads/' + file.filename);
+        // Lưu URL đầy đủ thay vì chỉ path
+        images = req.files.map((file: any) => `http://localhost:3000/media/images/${file.filename}`);
       }
       
       const post = await PostService.createPost({
@@ -59,5 +60,16 @@ export class PostController {
     const post = await PostService.approvePost(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post not found' });
     res.json(post);
+  }
+
+  static async update(req: Request, res: Response) {
+    try {
+      const post = await PostService.updatePost(req.params.id, req.body);
+      if (!post) return res.status(404).json({ message: 'Post not found' });
+      res.json(post);
+    } catch (error: any) {
+      console.error('Update post error:', error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
   }
 }

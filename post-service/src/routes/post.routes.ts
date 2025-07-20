@@ -19,10 +19,11 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB mỗi ảnh
 });
 
-router.post('/', upload.array('images', 5), PostController.create);
+router.post('/', authenticate, upload.array('images', 5), PostController.create);
 router.get('/', PostController.getAll);
 router.get('/pending', authenticate, requireAdmin, PostController.getPending); // Lấy bài chưa duyệt
 router.patch('/approve/:id', authenticate, requireAdmin, PostController.approve); // Duyệt bài
+router.patch('/:id', authenticate, PostController.update); // Update post (không yêu cầu admin)
 router.get('/approved', PostController.getApproved);
 router.get('/:id', PostController.getOne);
 

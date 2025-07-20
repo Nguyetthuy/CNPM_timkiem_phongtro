@@ -71,12 +71,12 @@ const PostCreate: React.FC = () => {
       });
       
       await createPost(formData, token);
-      setSuccess('Tạo bài đăng thành công!');
+      setSuccess('Tạo bài đăng thành công! Đang chuyển hướng...');
       
-      // Redirect về trang cá nhân sau 2 giây
+      // Redirect về trang cá nhân với parameter thành công
       setTimeout(() => {
-        navigate('/profile');
-      }, 2000);
+        navigate('/profile?postCreated=true', { replace: true });
+      }, 1500);
     } catch (err: any) {
       const msg = err.response?.data?.error || err.message || 'Tạo bài đăng thất bại.';
       setError(msg);

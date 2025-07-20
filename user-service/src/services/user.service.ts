@@ -77,11 +77,25 @@ export class UserService {
   // Lấy bài đăng chờ duyệt của user
   static async getPendingPosts(userId: string): Promise<Post[]> {
     try {
+      console.log(`🔍 Tìm bài đăng chờ duyệt cho user: ${userId}`);
       const postCollection = mongoose.connection.collection('posts');
+      
+      // Kiểm tra tất cả bài đăng trong database
+      const allPosts = await postCollection.find({}).toArray();
+      console.log(`📊 Tổng số bài đăng trong DB: ${allPosts.length}`);
+      console.log('📋 Danh sách bài đăng:', allPosts.map(p => ({
+        id: p._id,
+        title: p.title,
+        authorId: p.authorId,
+        status: p.status
+      })));
+      
       const posts = await postCollection.find({
         authorId: userId,
         status: 'pending'
       }).sort({ createdAt: -1 }).toArray();
+      
+      console.log(`✅ Tìm thấy ${posts.length} bài đăng chờ duyệt cho user ${userId}`);
       
       return posts.map(post => ({
         _id: post._id.toString(),
@@ -130,6 +144,7 @@ export class UserService {
   // Lấy thống kê bài đăng của user
   static async getUserStats(userId: string) {
     try {
+      console.log(`📊 Lấy thống kê cho user: ${userId}`);
       const postCollection = mongoose.connection.collection('posts');
       
       const totalPosts = await postCollection.countDocuments({ authorId: userId });
@@ -140,6 +155,12 @@ export class UserService {
       const pendingPosts = await postCollection.countDocuments({ 
         authorId: userId, 
         status: 'pending' 
+      });
+      
+      console.log(`📈 Thống kê user ${userId}:`, {
+        totalPosts,
+        approvedPosts,
+        pendingPosts
       });
       
       return {

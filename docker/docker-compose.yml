@@ -39,6 +39,8 @@ services:
       - "3003:3003"
     volumes:
       - media_uploads:/app/uploads
+    environment:
+      - MEDIA_SERVICE_URL=http://localhost:3000/media
 
   user-service:
     build:

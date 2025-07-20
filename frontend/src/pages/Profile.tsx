@@ -52,7 +52,9 @@ const Profile: React.FC = () => {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState<'approved' | 'pending'>('approved');
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -61,7 +63,50 @@ const Profile: React.FC = () => {
       return;
     }
 
+    // Kiểm tra URL parameters để hiển thị thông báo
+    const urlParams = new URLSearchParams(window.location.search);
+    const postCreated = urlParams.get('postCreated');
+    if (postCreated === 'true') {
+      setSuccess('Bài đăng đã được tạo thành công và đang chờ duyệt!');
+      // Xóa parameter khỏi URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Kiểm tra thông báo bài đăng được duyệt
+    const storedNotifications = JSON.parse(localStorage.getItem('postNotifications') || '[]');
+    const userNotifications = storedNotifications.filter((n: any) => n.type === 'approved');
+    if (userNotifications.length > 0) {
+      setNotifications(userNotifications);
+      // Tự động chuyển sang tab "Đã Duyệt" khi có thông báo
+      setActiveTab('approved');
+      // Xóa thông báo đã hiển thị
+      const remainingNotifications = storedNotifications.filter((n: any) => n.type !== 'approved');
+      localStorage.setItem('postNotifications', JSON.stringify(remainingNotifications));
+      
+      // Refresh dashboard để cập nhật số liệu
+      fetchDashboard(token);
+    }
+
+    // Lắng nghe thay đổi localStorage để nhận thông báo real-time
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'postNotifications' && e.newValue) {
+        const newNotifications = JSON.parse(e.newValue);
+        const newUserNotifications = newNotifications.filter((n: any) => n.type === 'approved');
+        if (newUserNotifications.length > 0) {
+          setNotifications(prev => [...prev, ...newUserNotifications]);
+          setActiveTab('approved');
+          fetchDashboard(token);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
     fetchDashboard(token);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [navigate]);
 
   const fetchDashboard = async (token: string) => {
@@ -81,6 +126,21 @@ const Profile: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const dismissNotification = (notificationId: number) => {
+    setNotifications(notifications.filter(n => n.id !== notificationId));
+  };
+
+  // Tự động ẩn thông báo sau 10 giây
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const timer = setTimeout(() => {
+        setNotifications([]);
+      }, 10000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [notifications]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -216,13 +276,149 @@ const Profile: React.FC = () => {
             padding: 24, 
             borderRadius: 12, 
             boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-            textAlign: 'center'
+            textAlign: 'center',
+            position: 'relative'
           }}>
             <div style={{ fontSize: 48, marginBottom: 8 }}>⏳</div>
             <h3 style={{ margin: '0 0 8px 0', color: '#f57c00' }}>Chờ Duyệt</h3>
             <div style={{ fontSize: 32, fontWeight: 'bold', color: '#333' }}>{stats.pendingPosts}</div>
+            {stats.pendingPosts > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: -8,
+                right: -8,
+                background: '#f44336',
+                color: 'white',
+                borderRadius: '50%',
+                width: 24,
+                height: 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 12,
+                fontWeight: 'bold'
+              }}>
+                {stats.pendingPosts}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Thông báo cho bài đăng chờ duyệt */}
+        {stats.pendingPosts > 0 && (
+          <div style={{ 
+            background: '#fff3e0', 
+            border: '1px solid #ffb74d', 
+            borderRadius: 8, 
+            padding: 16, 
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <div style={{ fontSize: 24 }}>⏳</div>
+            <div>
+              <strong>Bạn có {stats.pendingPosts} bài đăng đang chờ duyệt!</strong>
+              <p style={{ margin: '4px 0 0 0', color: '#666' }}>
+                Admin sẽ xem xét và duyệt bài đăng của bạn sớm nhất có thể.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Thông báo thành công */}
+        {success && (
+          <div style={{ 
+            background: '#e8f5e8', 
+            border: '1px solid #4caf50', 
+            borderRadius: 8, 
+            padding: 16, 
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12
+          }}>
+            <div style={{ fontSize: 24 }}>✅</div>
+            <div>
+              <strong>{success}</strong>
+              <p style={{ margin: '4px 0 0 0', color: '#666' }}>
+                Bài đăng của bạn sẽ được hiển thị ở tab "Chờ Duyệt" bên dưới.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Thông báo bài đăng được duyệt */}
+        {notifications.map(notification => (
+          <div key={notification.id} style={{ 
+            background: '#e3f2fd', 
+            border: '1px solid #2196f3', 
+            borderRadius: 8, 
+            padding: 16, 
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            position: 'relative',
+            animation: 'slideIn 0.5s ease-out',
+            boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)'
+          }}>
+            <div style={{ fontSize: 24, animation: 'bounce 1s infinite' }}>🎉</div>
+            <div style={{ flex: 1 }}>
+              <strong>Chúc mừng! {notification.message}</strong>
+              <p style={{ margin: '4px 0 0 0', color: '#666' }}>
+                Bài đăng của bạn đã được duyệt và sẽ hiển thị ở tab "Đã Duyệt" bên dưới.
+              </p>
+              <small style={{ color: '#999' }}>
+                {new Date(notification.timestamp).toLocaleString('vi-VN')}
+              </small>
+            </div>
+            <button
+              onClick={() => dismissNotification(notification.id)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: 18,
+                cursor: 'pointer',
+                color: '#666',
+                padding: 4,
+                borderRadius: 4,
+                transition: 'color 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.color = '#333'}
+              onMouseOut={(e) => e.currentTarget.style.color = '#666'}
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+
+        <style>
+          {`
+            @keyframes slideIn {
+              from {
+                opacity: 0;
+                transform: translateY(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            
+            @keyframes bounce {
+              0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+              }
+              40% {
+                transform: translateY(-5px);
+              }
+              60% {
+                transform: translateY(-3px);
+              }
+            }
+          `}
+        </style>
 
         {/* Tabs */}
         <div style={{ 
@@ -260,10 +456,30 @@ const Profile: React.FC = () => {
                 color: activeTab === 'pending' ? '#f57c00' : '#666',
                 cursor: 'pointer',
                 fontSize: 16,
-                fontWeight: activeTab === 'pending' ? 'bold' : 'normal'
+                fontWeight: activeTab === 'pending' ? 'bold' : 'normal',
+                position: 'relative'
               }}
             >
               ⏳ Bài Đăng Chờ Duyệt ({pendingPosts.length})
+              {pendingPosts.length > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  background: '#f44336',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: 20,
+                  height: 20,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 10,
+                  fontWeight: 'bold'
+                }}>
+                  {pendingPosts.length}
+                </span>
+              )}
             </button>
           </div>
 

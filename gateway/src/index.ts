@@ -24,7 +24,7 @@ app.get('/health', (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
     routes: {
       auth: '/api/auth/*',
-      posts: '/posts/*',
+      posts: '/posts*',
       media: '/media/*',
       user: '/user/*'
     }
@@ -43,10 +43,18 @@ app.use('/api/auth', proxy('http://auth-service:3001', {
   }
 }));
 
+// Post service proxy - sử dụng /posts* để match cả /posts và /posts/*
 app.use('/posts', proxy('http://post-service:3002', {
+  proxyReqPathResolver: (req) => {
+    // Forward đến /posts path trong post-service, giữ nguyên phần còn lại của URL
+    const path = req.url;
+    return `/posts${path}`;
+  },
   proxyErrorHandler: (err, res, next) => {
     console.error('Post service proxy error:', err);
-    res.status(500).json({ error: 'Post service unavailable' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Post service unavailable' });
+    }
   }
 }));
 
@@ -94,7 +102,7 @@ app.use('*', (req: Request, res: Response) => {
     availableRoutes: [
       '/health',
       '/api/auth/*',
-      '/posts/*', 
+      '/posts*', 
       '/media/*',
       '/user/*'
     ]
@@ -112,7 +120,7 @@ app.listen(3000, () => {
   console.log('📋 Available routes:');
   console.log('   - /health (health check)');
   console.log('   - /api/auth/* (auth service)');
-  console.log('   - /posts/* (post service)');
+  console.log('   - /posts* (post service)');
   console.log('   - /media/* (media service)');
   console.log('   - /user/* (user service)');
 });

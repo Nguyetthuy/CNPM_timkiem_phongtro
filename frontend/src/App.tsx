@@ -6,6 +6,7 @@ import Search from './pages/Search';
 import Admin from './pages/Admin';
 import PostCreate from './pages/PostCreate';
 import Profile from './pages/Profile';
+import Header from './components/Header';
 import './App.css';
 
 // Component để kiểm tra authentication
@@ -35,6 +36,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <Header />
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
