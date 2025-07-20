@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDashboard } from '../api/user';
+import { deletePost } from '../api/post';
 import './AuthPages.css';
 
 interface Post {
@@ -149,6 +150,24 @@ const Profile: React.FC = () => {
 
   const handleCreatePost = () => {
     navigate('/create-post');
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa bài đăng này?')) {
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token') || '';
+      await deletePost(postId, token);
+      
+      // Refresh dashboard để cập nhật danh sách
+      fetchDashboard(token);
+      
+      alert('Xóa bài đăng thành công!');
+    } catch (err) {
+      alert('Xóa bài đăng thất bại');
+    }
   };
 
   if (loading) {
@@ -495,7 +514,7 @@ const Profile: React.FC = () => {
                 ) : (
                   <div style={{ display: 'grid', gap: 20 }}>
                     {approvedPosts.map((post) => (
-                      <PostCard key={post._id} post={post} />
+                      <PostCard key={post._id} post={post} onDelete={handleDeletePost} />
                     ))}
                   </div>
                 )}
@@ -511,7 +530,7 @@ const Profile: React.FC = () => {
                 ) : (
                   <div style={{ display: 'grid', gap: 20 }}>
                     {pendingPosts.map((post) => (
-                      <PostCard key={post._id} post={post} />
+                      <PostCard key={post._id} post={post} onDelete={handleDeletePost} />
                     ))}
                   </div>
                 )}
@@ -525,7 +544,7 @@ const Profile: React.FC = () => {
 };
 
 // Component hiển thị bài đăng
-const PostCard: React.FC<{ post: Post }> = ({ post }) => {
+const PostCard: React.FC<{ post: Post; onDelete?: (postId: string) => void }> = ({ post, onDelete }) => {
   return (
     <div style={{ 
       border: '1px solid #e0e0e0', 
@@ -545,6 +564,34 @@ const PostCard: React.FC<{ post: Post }> = ({ post }) => {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
         <div style={{ flex: 1 }}>
+          {onDelete && (
+            <button 
+              onClick={() => onDelete(post._id)} 
+              style={{ 
+                background: 'linear-gradient(135deg, #f44336, #d32f2f)', 
+                color: 'white', 
+                border: 'none', 
+                padding: '8px 16px', 
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: 14,
+                fontWeight: 'bold',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                marginBottom: 12
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+              }}
+            >
+              🗑️ Xóa bài
+            </button>
+          )}
           <h4 style={{ 
             margin: '0 0 8px 0', 
             color: '#1976d2', 

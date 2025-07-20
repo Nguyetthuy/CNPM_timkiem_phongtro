@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getPendingPosts, approvePost, getApprovedPosts } from '../api/post';
+import { getPendingPosts, approvePost, getApprovedPosts, deletePost } from '../api/post';
 import { getUserById } from '../api/auth';
 
 interface Post {
@@ -111,6 +111,25 @@ const Admin: React.FC = () => {
       }
     } catch (err) {
       alert('Duyệt bài thất bại');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa bài đăng này?')) {
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token') || '';
+      await deletePost(id, token);
+      
+      setPosts(posts => posts.filter(p => p._id !== id));
+      // Refresh stats sau khi xóa
+      fetchStats();
+      
+      alert('Xóa bài đăng thành công!');
+    } catch (err) {
+      alert('Xóa bài đăng thất bại');
     }
   };
 
@@ -274,32 +293,58 @@ const Admin: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                <button 
-                  onClick={() => handleApprove(post._id)} 
-                  style={{ 
-                    background: 'linear-gradient(135deg, #4caf50, #45a049)', 
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '12px 24px', 
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    marginLeft: 20,
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-                  }}
-                >
-                  ✅ Duyệt bài
-                </button>
+                <div style={{ display: 'flex', gap: 12, marginLeft: 20 }}>
+                  <button 
+                    onClick={() => handleApprove(post._id)} 
+                    style={{ 
+                      background: 'linear-gradient(135deg, #4caf50, #45a049)', 
+                      color: 'white', 
+                      border: 'none', 
+                      padding: '12px 24px', 
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+                    }}
+                  >
+                    ✅ Duyệt bài
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(post._id)} 
+                    style={{ 
+                      background: 'linear-gradient(135deg, #f44336, #d32f2f)', 
+                      color: 'white', 
+                      border: 'none', 
+                      padding: '12px 24px', 
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+                    }}
+                  >
+                    🗑️ Xóa bài
+                  </button>
+                </div>
               </div>
               
               {post.images && post.images.length > 0 && (

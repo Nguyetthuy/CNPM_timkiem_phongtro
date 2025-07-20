@@ -49,25 +49,15 @@ const PostCreate: React.FC = () => {
     try {
       const token = localStorage.getItem('token') || '';
       
-      // Upload ảnh trước
-      let imageUrls: string[] = [];
-      if (images.length > 0) {
-        const imageFormData = new FormData();
-        images.forEach(image => {
-          imageFormData.append('images', image);
-        });
-        
-        const uploadResult = await uploadImages(imageFormData, token);
-        imageUrls = uploadResult.images.map((img: any) => img.url);
-      }
-
-      // Tạo bài đăng với ảnh (không cần gửi author, sẽ lấy từ JWT token)
+      // Tạo bài đăng với ảnh (gửi file trực tiếp)
       const formData = new FormData();
       formData.append('title', title);
       formData.append('content', content);
       formData.append('note', note);
-      imageUrls.forEach(url => {
-        formData.append('images', url);
+      
+      // Thêm ảnh vào FormData
+      images.forEach(image => {
+        formData.append('images', image);
       });
       
       await createPost(formData, token);

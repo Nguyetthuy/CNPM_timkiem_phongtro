@@ -29,4 +29,8 @@ export class PostService {
   static async getApprovedPosts() {
     return await Post.find({ status: 'approved' });
   }
+
+  static async deletePost(id: string) {
+    return await Post.findByIdAndDelete(id);
+  }
 }

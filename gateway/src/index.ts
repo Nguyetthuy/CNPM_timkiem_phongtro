@@ -48,6 +48,7 @@ app.use('/posts', proxy('http://post-service:3002', {
   proxyReqPathResolver: (req) => {
     // Forward đến /posts path trong post-service, giữ nguyên phần còn lại của URL
     const path = req.url;
+    console.log(`[Gateway] Proxying /posts${path} to post-service`);
     return `/posts${path}`;
   },
   proxyErrorHandler: (err, res, next) => {

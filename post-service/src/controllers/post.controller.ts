@@ -18,9 +18,22 @@ export class PostController {
       const userId = decoded.userId;
 
       let images: string[] = [];
+      
+      // Xử lý ảnh từ files
       if (req.files && Array.isArray(req.files)) {
-        // Lưu URL đầy đủ thay vì chỉ path
-        images = req.files.map((file: any) => `http://localhost:3000/media/images/${file.filename}`);
+        // Sử dụng localhost:3000 thay vì internal Docker hostname
+        const baseUrl = 'http://localhost:3000';
+        images = req.files.map((file: any) => `${baseUrl}/posts/images/${file.filename}`);
+        console.log('Created image URLs:', images);
+      }
+      
+      // Xử lý ảnh từ body (nếu đã upload qua media service)
+      if (req.body.images) {
+        if (Array.isArray(req.body.images)) {
+          images = [...images, ...req.body.images];
+        } else {
+          images.push(req.body.images);
+        }
       }
       
       const post = await PostService.createPost({
@@ -69,6 +82,37 @@ export class PostController {
       res.json(post);
     } catch (error: any) {
       console.error('Update post error:', error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+  }
+
+  static async delete(req: Request, res: Response) {
+    try {
+      // Lấy userId từ JWT token để kiểm tra quyền
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'No token provided' });
+      }
+      
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
+      const userId = decoded.userId;
+      const userRole = decoded.role;
+
+      const post = await PostService.getPostById(req.params.id);
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+
+      // Chỉ cho phép admin hoặc tác giả bài đăng xóa
+      if (userRole !== 'admin' && post.authorId !== userId) {
+        return res.status(403).json({ message: 'Unauthorized to delete this post' });
+      }
+
+      const deletedPost = await PostService.deletePost(req.params.id);
+      res.json({ message: 'Post deleted successfully', post: deletedPost });
+    } catch (error: any) {
+      console.error('Delete post error:', error);
       res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   }
