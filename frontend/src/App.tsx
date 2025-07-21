@@ -64,8 +64,8 @@ function App() {
           } />
           
           {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/profile" replace />} />
-          <Route path="*" element={<Navigate to="/profile" replace />} />
+          <Route path="/" element={<Navigate to="/search" replace />} />
+          <Route path="*" element={<Navigate to="/search" replace />} />
         </Routes>
       </div>
     </Router>

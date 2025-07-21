@@ -26,6 +26,7 @@ router.patch('/approve/:id', authenticate, requireAdmin, PostController.approve)
 router.patch('/:id', authenticate, PostController.update); // Update post (không yêu cầu admin)
 router.delete('/:id', authenticate, PostController.delete); // Xóa bài đăng
 router.get('/approved', PostController.getApproved);
+router.get('/search', PostController.search);
 
 // Route để serve ảnh - phải đặt trước /:id để tránh conflict
 router.get('/images/:filename', (req, res) => {
