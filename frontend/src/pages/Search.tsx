@@ -151,8 +151,14 @@ export default function Search() {
         </div>
       ) : (
         <>
+          <div style={{ textAlign: 'center', color: '#666', marginBottom: 16 }}>
+            <p style={{ margin: 0 }}>
+              Tìm thấy <strong>{total}</strong> bài viết
+              {query && ` cho từ khóa "${query}"`}
+            </p>
+          </div>
           <div style={{ display: 'grid', gap: 20 }}>
-            {results.map((item: Post, idx) => (
+            {results.filter(item => item.status === 'approved').map((item: Post, idx) => (
               <div key={idx} style={{ 
                 background: 'white',
                 border: '1px solid #e0e0e0', 

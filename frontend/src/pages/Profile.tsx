@@ -539,6 +539,7 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </div>
+      <button onClick={() => navigate('/search')} style={{ marginTop: 24, color: '#1976d2', fontWeight: 'bold', background: 'none', border: '1px solid #1976d2', borderRadius: 8, padding: '10px 24px', fontSize: 16, cursor: 'pointer' }}>← Quay lại trang tìm kiếm</button>
     </div>
   );
 };
