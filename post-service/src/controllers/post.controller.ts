@@ -40,6 +40,7 @@ export class PostController {
         ...req.body,
         authorId: userId,
         images,
+        createdAt: req.body.createdAt || new Date().toISOString(),
       });
       res.json(post);
     } catch (error: any) {

@@ -86,17 +86,6 @@ const Login: React.FC = () => {
           </button>
         </p>
         
-        {/* Admin credentials hint */}
-        <div style={{ 
-          marginTop: 20, 
-          padding: 12, 
-          background: '#f5f5f5', 
-          borderRadius: 8,
-          fontSize: 14,
-          color: '#666'
-        }}>
-          <strong>Admin:</strong> admin@gmail.com / 12345
-        </div>
       </div>
     </div>
   );

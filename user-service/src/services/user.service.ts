@@ -65,8 +65,8 @@ export class UserService {
         status: post.status,
         images: post.images || [],
         note: post.note,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt
+        createdAt: post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt,
+        updatedAt: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : post.updatedAt
       }));
     } catch (error) {
       console.error('Get approved posts error:', error);
@@ -106,8 +106,8 @@ export class UserService {
         status: post.status,
         images: post.images || [],
         note: post.note,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt
+        createdAt: post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt,
+        updatedAt: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : post.updatedAt
       }));
     } catch (error) {
       console.error('Get pending posts error:', error);
@@ -132,8 +132,8 @@ export class UserService {
         status: post.status,
         images: post.images || [],
         note: post.note,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt
+        createdAt: post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt,
+        updatedAt: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : post.updatedAt
       }));
     } catch (error) {
       console.error('Get all user posts error:', error);
