@@ -192,14 +192,14 @@ const Admin: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
         <h1 style={{ color: '#1976d2', fontWeight: 'bold', fontSize: 32, margin: 0, cursor: 'pointer' }} onClick={() => navigate('/admin')}>🛠️ Admin Panel</h1>
         <div>
-          <button onClick={() => navigate('/search')} style={{ marginRight: 16, color: '#1976d2', fontWeight: 'bold', background: 'none', border: 'none', fontSize: 16, cursor: 'pointer' }}>Tìm kiếm</button>
-          <button onClick={handleLogout} style={{ color: '#d32f2f', fontWeight: 'bold', background: 'none', border: 'none', fontSize: 16, cursor: 'pointer' }}>Đăng xuất</button>
+          <button onClick={() => navigate('/search')} style={{ marginRight: 16, color: '#fff', fontWeight: 'bold', background: 'linear-gradient(135deg, #43cea2, #185a9d)', border: 'none', borderRadius: 8, fontSize: 16, padding: '8px 20px', cursor: 'pointer' }}>Tìm kiếm</button>
+          <button onClick={handleLogout} style={{ color: '#fff', fontWeight: 'bold', background: 'linear-gradient(135deg, #d32f2f, #f44336)', border: 'none', borderRadius: 8, fontSize: 16, padding: '8px 20px', cursor: 'pointer' }}>Đăng xuất</button>
         </div>
       </div>
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-        <button onClick={() => setTab('pending')} style={{ padding: '10px 24px', borderRadius: 8, border: tab === 'pending' ? '2px solid #1976d2' : '1px solid #ccc', background: tab === 'pending' ? '#1976d2' : '#fff', color: tab === 'pending' ? '#fff' : '#1976d2', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>Bài chờ duyệt</button>
-        <button onClick={() => setTab('approved')} style={{ padding: '10px 24px', borderRadius: 8, border: tab === 'approved' ? '2px solid #1976d2' : '1px solid #ccc', background: tab === 'approved' ? '#1976d2' : '#fff', color: tab === 'approved' ? '#fff' : '#1976d2', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>Bài đã duyệt</button>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24, justifyContent: 'center' }}>
+        <button onClick={() => setTab('pending')} style={{ background: tab === 'pending' ? 'linear-gradient(135deg, #1976d2, #64b5f6)' : '#e3f2fd', color: tab === 'pending' ? '#fff' : '#1976d2', fontWeight: 'bold', border: 'none', borderRadius: 8, fontSize: 16, padding: '8px 24px', cursor: 'pointer', boxShadow: tab === 'pending' ? '0 2px 8px rgba(25,118,210,0.15)' : 'none' }}>Chờ duyệt</button>
+        <button onClick={() => setTab('approved')} style={{ background: tab === 'approved' ? 'linear-gradient(135deg, #43cea2, #185a9d)' : '#e3f2fd', color: tab === 'approved' ? '#fff' : '#1976d2', fontWeight: 'bold', border: 'none', borderRadius: 8, fontSize: 16, padding: '8px 24px', cursor: 'pointer', boxShadow: tab === 'approved' ? '0 2px 8px rgba(33,150,243,0.15)' : 'none' }}>Đã duyệt</button>
       </div>
       {tab === 'pending' ? (
         <>
@@ -374,7 +374,8 @@ const Admin: React.FC = () => {
                           fontSize: 16,
                           fontWeight: 'bold',
                           transition: 'transform 0.2s, box-shadow 0.2s',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          marginRight: 10
                         }}
                         onMouseOver={(e) => {
                           e.currentTarget.style.transform = 'scale(1.05)';

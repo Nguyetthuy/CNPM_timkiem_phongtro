@@ -223,36 +223,10 @@ const Profile: React.FC = () => {
                 Xin chào, <strong>{profile.name}</strong> ({profile.email})
               </p>
             </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button 
-                onClick={handleCreatePost}
-                style={{ 
-                  background: 'linear-gradient(135deg, #4caf50, #45a049)', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '12px 24px', 
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  fontSize: 16,
-                  fontWeight: 'bold'
-                }}
-              >
-                ✏️ Tạo Bài Đăng
-              </button>
-              <button 
-                onClick={handleLogout}
-                style={{ 
-                  background: 'linear-gradient(135deg, #f44336, #d32f2f)', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '12px 24px', 
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  fontSize: 16
-                }}
-              >
-                🚪 Đăng Xuất
-              </button>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginBottom: 24 }}>
+              <button onClick={handleCreatePost} style={{ background: 'linear-gradient(135deg, #43cea2, #185a9d)', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>Tạo bài đăng</button>
+              <button onClick={handleLogout} style={{ background: 'linear-gradient(135deg, #d32f2f, #f44336)', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>Đăng xuất</button>
+              <button onClick={() => navigate('/search')} style={{ background: 'linear-gradient(135deg, #1976d2, #64b5f6)', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>← Quay lại trang tìm kiếm</button>
             </div>
           </div>
         </div>
@@ -539,7 +513,6 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </div>
-      <button onClick={() => navigate('/search')} style={{ marginTop: 24, color: '#1976d2', fontWeight: 'bold', background: 'none', border: '1px solid #1976d2', borderRadius: 8, padding: '10px 24px', fontSize: 16, cursor: 'pointer' }}>← Quay lại trang tìm kiếm</button>
     </div>
   );
 };

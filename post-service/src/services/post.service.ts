@@ -3,6 +3,7 @@ import Post from '../models/post.model';
 export class PostService {
   static async createPost(data: any) {
     if (!data.status) data.status = 'pending';
+    if (!data.createdAt) data.createdAt = new Date().toISOString();
     return await Post.create(data);
   }
 
@@ -39,7 +40,12 @@ export class PostService {
     if (filters.minPrice !== undefined) query.price = { ...query.price, $gte: Number(filters.minPrice) };
     if (filters.maxPrice !== undefined) query.price = { ...query.price, $lte: Number(filters.maxPrice) };
     if (filters.location) query.location = { $regex: filters.location, $options: 'i' };
-    if (filters.status) query.status = filters.status;
+    // Nếu không truyền status, mặc định chỉ lấy bài đã duyệt
+    if (filters.status) {
+      query.status = filters.status;
+    } else {
+      query.status = 'approved';
+    }
     const page = Number(filters.page) || 1;
     const limit = Number(filters.limit) || 10;
     const skip = (page - 1) * limit;

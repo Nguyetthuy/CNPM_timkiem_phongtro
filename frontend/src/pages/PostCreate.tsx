@@ -14,6 +14,7 @@ const PostCreate: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
+  const [createdAt, setCreatedAt] = useState('');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -58,6 +59,9 @@ const PostCreate: React.FC = () => {
       formData.append('note', note);
       formData.append('price', price);
       formData.append('location', location);
+      if (createdAt) {
+        formData.append('createdAt', new Date(createdAt).toISOString());
+      }
       
       // Thêm ảnh vào FormData
       images.forEach(image => {
@@ -195,6 +199,14 @@ const PostCreate: React.FC = () => {
               required
             />
           </div>
+          <label style={{ fontWeight: 'bold', marginTop: 12 }}>Ngày tạo bài đăng:</label>
+          <input
+            className="auth-input"
+            type="datetime-local"
+            value={createdAt}
+            onChange={e => setCreatedAt(e.target.value)}
+            style={{ marginBottom: 12 }}
+          />
           
           <div style={{ marginBottom: 24 }}>
             <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
