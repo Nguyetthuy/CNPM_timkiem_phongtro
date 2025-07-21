@@ -116,4 +116,15 @@ export class PostController {
       res.status(500).json({ message: 'Internal server error', error: error.message });
     }
   }
+
+  static async search(req: Request, res: Response) {
+    try {
+      const { results, total } = await PostService.searchPosts(req.query);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      res.json({ results, total, page, limit });
+    } catch (error: any) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+  }
 }

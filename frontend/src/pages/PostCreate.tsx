@@ -12,6 +12,8 @@ const PostCreate: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [price, setPrice] = useState('');
+  const [location, setLocation] = useState('');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -54,6 +56,8 @@ const PostCreate: React.FC = () => {
       formData.append('title', title);
       formData.append('content', content);
       formData.append('note', note);
+      formData.append('price', price);
+      formData.append('location', location);
       
       // Thêm ảnh vào FormData
       images.forEach(image => {
@@ -150,6 +154,45 @@ const PostCreate: React.FC = () => {
                 fontSize: 16
               }} 
               placeholder="Thêm ghi chú nếu cần..."
+            />
+          </div>
+          
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
+              Giá (VNĐ):
+            </label>
+            <input
+              type="number"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
+              style={{
+                width: '100%',
+                padding: 12,
+                border: '1px solid #ddd',
+                borderRadius: 8,
+                fontSize: 16
+              }}
+              placeholder="Nhập giá..."
+              min={0}
+              required
+            />
+          </div>
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
+              Vị trí:
+            </label>
+            <input
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              style={{
+                width: '100%',
+                padding: 12,
+                border: '1px solid #ddd',
+                borderRadius: 8,
+                fontSize: 16
+              }}
+              placeholder="Nhập vị trí..."
+              required
             />
           </div>
           

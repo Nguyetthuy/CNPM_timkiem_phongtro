@@ -51,4 +51,15 @@ export const deletePost = async (id: string, token: string) => {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
+};
+
+export const searchPosts = async (filters: { minPrice?: number; maxPrice?: number; location?: string; page?: number; limit?: number }) => {
+  const params = new URLSearchParams();
+  if (filters.minPrice !== undefined) params.append('minPrice', String(filters.minPrice));
+  if (filters.maxPrice !== undefined) params.append('maxPrice', String(filters.maxPrice));
+  if (filters.location) params.append('location', filters.location);
+  if (filters.page) params.append('page', String(filters.page));
+  if (filters.limit) params.append('limit', String(filters.limit));
+  const res = await axios.get(`${API_URL}/posts/search?${params.toString()}`);
+  return res.data;
 }; 
