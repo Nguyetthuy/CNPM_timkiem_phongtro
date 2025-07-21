@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createPost, uploadImages } from '../api/post';
+import { createPost } from '../api/post';
 import { useNavigate } from 'react-router-dom';
 
 const PostCreate: React.FC = () => {

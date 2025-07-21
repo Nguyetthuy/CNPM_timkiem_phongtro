@@ -33,17 +33,6 @@ services:
       - MONGODB_URI=mongodb://mongo:27017/findhouse
       - JWT_SECRET=your-super-secret-jwt-key-here
 
-  media-service:
-    build:
-      context: ../media-service
-      dockerfile: Dockerfile
-    ports:
-      - "3003:3003"
-    volumes:
-      - ../media-service/uploads:/app/uploads
-    environment:
-      - MEDIA_SERVICE_URL=http://localhost:3000/media
-
   user-service:
     build:
       context: ../user-service
@@ -65,7 +54,6 @@ services:
     depends_on:
       - auth-service
       - post-service
-      - media-service
       - user-service
 
   frontend:

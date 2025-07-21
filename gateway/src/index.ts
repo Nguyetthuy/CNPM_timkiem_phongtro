@@ -59,33 +59,6 @@ app.use('/posts', proxy('http://post-service:3002', {
   }
 }));
 
-// Media service proxy - xử lý multipart request đặc biệt
-app.use('/media', proxy('http://media-service:3003', {
-  // Forward tất cả headers và body
-  proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
-    // Đảm bảo Content-Type và boundary được giữ nguyên
-    if (srcReq.headers['content-type'] && proxyReqOpts.headers) {
-      (proxyReqOpts.headers as any)['content-type'] = srcReq.headers['content-type'];
-    }
-    
-    // Forward Content-Length nếu có
-    if (srcReq.headers['content-length'] && proxyReqOpts.headers) {
-      (proxyReqOpts.headers as any)['content-length'] = srcReq.headers['content-length'];
-    }
-    
-    // Forward Transfer-Encoding nếu có
-    if (srcReq.headers['transfer-encoding'] && proxyReqOpts.headers) {
-      (proxyReqOpts.headers as any)['transfer-encoding'] = srcReq.headers['transfer-encoding'];
-    }
-    
-    return proxyReqOpts;
-  },
-  proxyErrorHandler: (err, res, next) => {
-    console.error('Media service proxy error:', err);
-    res.status(500).json({ error: 'Media service unavailable' });
-  }
-}));
-
 app.use('/user', proxy('http://user-service:3004', {
   proxyErrorHandler: (err, res, next) => {
     console.error('User service proxy error:', err);
