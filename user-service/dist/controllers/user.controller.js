@@ -8,30 +8,57 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const user_service_1 = require("../services/user.service");
+const user_model_1 = __importDefault(require("../models/user.model"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 class UserController {
     // Lấy thông tin user profile
     static getProfile(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userId = req.userId;
-                if (!userId) {
-                    return res.status(401).json({ error: 'User ID not found' });
-                }
-                const profile = yield user_service_1.UserService.getUserProfile(userId);
-                if (!profile) {
-                    return res.status(404).json({ error: 'User not found' });
-                }
-                res.json({
-                    message: 'Lấy thông tin profile thành công',
-                    profile
-                });
+                const userId = req.user.userId;
+                const user = yield user_model_1.default.findById(userId).select('-password');
+                if (!user)
+                    return res.status(404).json({ message: 'User not found' });
+                res.json(user);
             }
             catch (error) {
-                console.error('Get profile error:', error);
-                res.status(500).json({ error: 'Internal server error' });
+                res.status(500).json({ message: 'Internal server error', error: error.message });
+            }
+        });
+    }
+    static updateProfile(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = req.user.userId;
+                const { name, email, phone, oldPassword, newPassword } = req.body;
+                const user = yield user_model_1.default.findById(userId);
+                if (!user)
+                    return res.status(404).json({ message: 'User not found' });
+                if (name)
+                    user.name = name;
+                if (email)
+                    user.email = email;
+                if (phone)
+                    user.phone = phone;
+                if (newPassword) {
+                    if (!oldPassword)
+                        return res.status(400).json({ message: 'Cần nhập mật khẩu cũ để đổi mật khẩu' });
+                    const isMatch = yield bcryptjs_1.default.compare(oldPassword, user.password);
+                    if (!isMatch)
+                        return res.status(400).json({ message: 'Mật khẩu cũ không đúng' });
+                    user.password = yield bcryptjs_1.default.hash(newPassword, 10);
+                }
+                yield user.save();
+                res.json({ message: 'Cập nhật thành công' });
+            }
+            catch (error) {
+                res.status(500).json({ message: 'Internal server error', error: error.message });
             }
         });
     }
@@ -39,7 +66,7 @@ class UserController {
     static getApprovedPosts(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userId = req.userId;
+                const userId = req.user.userId;
                 if (!userId) {
                     return res.status(401).json({ error: 'User ID not found' });
                 }
@@ -59,7 +86,7 @@ class UserController {
     static getPendingPosts(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userId = req.userId;
+                const userId = req.user.userId;
                 if (!userId) {
                     return res.status(401).json({ error: 'User ID not found' });
                 }
@@ -79,7 +106,7 @@ class UserController {
     static getAllPosts(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userId = req.userId;
+                const userId = req.user.userId;
                 if (!userId) {
                     return res.status(401).json({ error: 'User ID not found' });
                 }
@@ -99,7 +126,7 @@ class UserController {
     static getStats(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userId = req.userId;
+                const userId = req.user.userId;
                 if (!userId) {
                     return res.status(401).json({ error: 'User ID not found' });
                 }
@@ -119,7 +146,7 @@ class UserController {
     static getDashboard(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userId = req.userId;
+                const userId = req.user.userId;
                 if (!userId) {
                     return res.status(401).json({ error: 'User ID not found' });
                 }
@@ -145,6 +172,19 @@ class UserController {
             catch (error) {
                 console.error('Get dashboard error:', error);
                 res.status(500).json({ error: 'Internal server error' });
+            }
+        });
+    }
+    static getUserById(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield user_model_1.default.findById(req.params.id).select('name email');
+                if (!user)
+                    return res.status(404).json({ message: 'User not found' });
+                res.json(user);
+            }
+            catch (error) {
+                res.status(500).json({ message: 'Internal server error', error: error.message });
             }
         });
     }

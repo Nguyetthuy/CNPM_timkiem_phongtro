@@ -7,8 +7,7 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'secret123';
 
 export interface AuthRequest extends Request {
-  userId?: string;
-  userRole?: string;
+  user?: any;
 }
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -22,8 +21,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     
-    req.userId = decoded.userId;
-    req.userRole = decoded.role;
+    req.user = decoded;
     
     next();
   } catch (error) {

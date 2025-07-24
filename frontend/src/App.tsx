@@ -6,6 +6,7 @@ import Search from './pages/Search';
 import Admin from './pages/Admin';
 import PostCreate from './pages/PostCreate';
 import Profile from './pages/Profile';
+import ProfileSettings from './pages/ProfileSettings';
 import Header from './components/Header';
 import './App.css';
 
@@ -53,6 +54,12 @@ function App() {
           <Route path="/create-post" element={
             <PrivateRoute>
               <PostCreate />
+            </PrivateRoute>
+          } />
+
+          <Route path="/profile-settings" element={
+            <PrivateRoute>
+              <ProfileSettings />
             </PrivateRoute>
           } />
           

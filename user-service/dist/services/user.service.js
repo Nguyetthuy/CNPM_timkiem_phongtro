@@ -58,8 +58,8 @@ class UserService {
                     status: post.status,
                     images: post.images || [],
                     note: post.note,
-                    createdAt: post.createdAt,
-                    updatedAt: post.updatedAt
+                    createdAt: post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt,
+                    updatedAt: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : post.updatedAt
                 }));
             }
             catch (error) {
@@ -72,11 +72,22 @@ class UserService {
     static getPendingPosts(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(`🔍 Tìm bài đăng chờ duyệt cho user: ${userId}`);
                 const postCollection = mongoose_1.default.connection.collection('posts');
+                // Kiểm tra tất cả bài đăng trong database
+                const allPosts = yield postCollection.find({}).toArray();
+                console.log(`📊 Tổng số bài đăng trong DB: ${allPosts.length}`);
+                console.log('📋 Danh sách bài đăng:', allPosts.map(p => ({
+                    id: p._id,
+                    title: p.title,
+                    authorId: p.authorId,
+                    status: p.status
+                })));
                 const posts = yield postCollection.find({
                     authorId: userId,
                     status: 'pending'
                 }).sort({ createdAt: -1 }).toArray();
+                console.log(`✅ Tìm thấy ${posts.length} bài đăng chờ duyệt cho user ${userId}`);
                 return posts.map(post => ({
                     _id: post._id.toString(),
                     title: post.title,
@@ -86,8 +97,8 @@ class UserService {
                     status: post.status,
                     images: post.images || [],
                     note: post.note,
-                    createdAt: post.createdAt,
-                    updatedAt: post.updatedAt
+                    createdAt: post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt,
+                    updatedAt: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : post.updatedAt
                 }));
             }
             catch (error) {
@@ -113,8 +124,8 @@ class UserService {
                     status: post.status,
                     images: post.images || [],
                     note: post.note,
-                    createdAt: post.createdAt,
-                    updatedAt: post.updatedAt
+                    createdAt: post.createdAt instanceof Date ? post.createdAt.toISOString() : post.createdAt,
+                    updatedAt: post.updatedAt instanceof Date ? post.updatedAt.toISOString() : post.updatedAt
                 }));
             }
             catch (error) {
@@ -127,6 +138,7 @@ class UserService {
     static getUserStats(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log(`📊 Lấy thống kê cho user: ${userId}`);
                 const postCollection = mongoose_1.default.connection.collection('posts');
                 const totalPosts = yield postCollection.countDocuments({ authorId: userId });
                 const approvedPosts = yield postCollection.countDocuments({
@@ -136,6 +148,11 @@ class UserService {
                 const pendingPosts = yield postCollection.countDocuments({
                     authorId: userId,
                     status: 'pending'
+                });
+                console.log(`📈 Thống kê user ${userId}:`, {
+                    totalPosts,
+                    approvedPosts,
+                    pendingPosts
                 });
                 return {
                     totalPosts,

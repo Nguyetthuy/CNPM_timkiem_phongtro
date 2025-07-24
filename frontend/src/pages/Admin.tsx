@@ -190,7 +190,7 @@ const Admin: React.FC = () => {
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', padding: '40px 20px' }}>
       {/* Menu admin */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
-        <h1 style={{ color: '#1976d2', fontWeight: 'bold', fontSize: 32, margin: 0, cursor: 'pointer' }} onClick={() => navigate('/admin')}>🛠️ Admin Panel</h1>
+        <h1 style={{ color: '#1976d2', fontWeight: 'bold', fontSize: 32, margin: 0, cursor: 'pointer' }} onClick={() => navigate('/admin')}>🛠️ Trang Admin</h1>
         <div>
           <button onClick={() => navigate('/search')} style={{ marginRight: 16, color: '#fff', fontWeight: 'bold', background: 'linear-gradient(135deg, #43cea2, #185a9d)', border: 'none', borderRadius: 8, fontSize: 16, padding: '8px 20px', cursor: 'pointer' }}>Tìm kiếm</button>
           <button onClick={handleLogout} style={{ color: '#fff', fontWeight: 'bold', background: 'linear-gradient(135deg, #d32f2f, #f44336)', border: 'none', borderRadius: 8, fontSize: 16, padding: '8px 20px', cursor: 'pointer' }}>Đăng xuất</button>

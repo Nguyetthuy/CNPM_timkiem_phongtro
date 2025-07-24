@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:5
+        ports: [27017:27017]
+        options: --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies (root)
+        run: npm install
+
+      - name: Install dependencies for all services
+        run: |
+          cd auth-service && npm install && cd ..
+          cd user-service && npm install && cd ..
+          cd post-service && npm install && cd ..
+          cd gateway && npm install && cd ..
+          cd frontend && npm install && cd ..
+
+      - name: Lint & Build backend
+        run: |
+          cd auth-service && npm run build && cd ..
+          cd user-service && npm run build && cd ..
+          cd post-service && npm run build && cd ..
+          cd gateway && npm run build && cd ..
+
+      - name: Lint & Build frontend
+        run: |
+          cd frontend && npm run build
+
+      # Nếu có test, thêm bước test ở đây
+      # - name: Run backend tests
+      #   run: cd post-service && npm test
+
+      - name: Build Docker images
+        run: |
+          docker build -t auth-service ./auth-service
+          docker build -t user-service ./user-service
+          docker build -t post-service ./post-service
+          docker build -t gateway ./gateway
+          docker build -t frontend ./frontend
+
+      # (Tùy chọn) Đẩy image lên DockerHub hoặc deploy lên server
+      # - name: Deploy to server
+      #   run: echo "Deploy step here" 

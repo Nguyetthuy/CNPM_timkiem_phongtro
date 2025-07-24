@@ -225,6 +225,7 @@ const Profile: React.FC = () => {
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginBottom: 24 }}>
               <button onClick={handleCreatePost} style={{ background: 'linear-gradient(135deg, #43cea2, #185a9d)', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>Tạo bài đăng</button>
+              <button onClick={() => navigate('/profile-settings')} style={{ background: 'linear-gradient(135deg, #1976d2, #64b5f6)', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>Hồ sơ</button>
               <button onClick={handleLogout} style={{ background: 'linear-gradient(135deg, #d32f2f, #f44336)', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>Đăng xuất</button>
               <button onClick={() => navigate('/search')} style={{ background: 'linear-gradient(135deg, #1976d2, #64b5f6)', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>← Quay lại trang tìm kiếm</button>
             </div>

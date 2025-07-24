@@ -40,6 +40,15 @@ export class PostService {
     if (filters.minPrice !== undefined) query.price = { ...query.price, $gte: Number(filters.minPrice) };
     if (filters.maxPrice !== undefined) query.price = { ...query.price, $lte: Number(filters.maxPrice) };
     if (filters.location) query.location = { $regex: filters.location, $options: 'i' };
+    if (filters.keyword) {
+      const kw = filters.keyword;
+      query.$or = [
+        { title: { $regex: kw, $options: 'i' } },
+        { content: { $regex: kw, $options: 'i' } },
+        { note: { $regex: kw, $options: 'i' } },
+        { location: { $regex: kw, $options: 'i' } }
+      ];
+    }
     // Nếu không truyền status, mặc định chỉ lấy bài đã duyệt
     if (filters.status) {
       query.status = filters.status;
@@ -50,9 +59,14 @@ export class PostService {
     const limit = Number(filters.limit) || 10;
     const skip = (page - 1) * limit;
     const [results, total] = await Promise.all([
-      Post.find(query).skip(skip).limit(limit),
+      Post.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
       Post.countDocuments(query)
     ]);
     return { results, total };
+  }
+
+  static async addCreatedAtToOldPosts() {
+    const now = new Date().toISOString();
+    await Post.updateMany({ createdAt: { $exists: false } }, { $set: { createdAt: now } });
   }
 }

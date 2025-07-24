@@ -7,14 +7,18 @@ import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = express.Router();
 
-// Tất cả routes đều cần authentication
+// Lấy thông tin user public (không cần auth)
+router.get('/user/:id', UserController.getUserById);
+
+// Tất cả routes còn lại đều cần authentication
 router.use(authMiddleware);
 
 // Dashboard - lấy tất cả thông tin user
 router.get('/dashboard', UserController.getDashboard);
 
 // Profile
-router.get('/profile', UserController.getProfile);
+router.get('/profile', authMiddleware, UserController.getProfile);
+router.put('/profile', authMiddleware, UserController.updateProfile);
 
 // Posts
 router.get('/posts/approved', UserController.getApprovedPosts);

@@ -4,9 +4,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './AuthPages.css';
-import { getApprovedPosts, searchPosts } from '../api/post';
+import { getApprovedPosts, searchPosts, ratePost } from '../api/post';
 import { getUserById } from '../api/auth';
 import { FaSpinner } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 interface Post {
   _id: string;
@@ -21,6 +22,9 @@ interface Post {
   updatedAt: string;
   price?: number; // Added price field
   location?: string; // Added location field
+  rating?: number; // Added rating field
+  ratingAvg?: number; // Added ratingAvg field
+  ratingCount?: number; // Added ratingCount field
 }
 
 interface User {
@@ -39,7 +43,179 @@ const formatDate = (dateString: string) => {
   });
 };
 
+// Popup thông tin liên hệ user
+const UserContactPopup: React.FC<{ user: any }> = ({ user }) => (
+  <div style={{
+    position: 'absolute',
+    top: 28,
+    left: 0,
+    zIndex: 100,
+    background: '#fff',
+    border: '1px solid #90caf9',
+    borderRadius: 8,
+    boxShadow: '0 4px 16px rgba(25,118,210,0.12)',
+    padding: 16,
+    minWidth: 220,
+    color: '#1976d2',
+    fontSize: 15
+  }}>
+    <div style={{ fontWeight: 'bold', marginBottom: 6 }}>👤 {user.name}</div>
+    {user.phone && <div>📞 <b>{user.phone}</b></div>}
+    <div>✉️ {user.email}</div>
+  </div>
+);
+
+// PostCard component cho mỗi bài đăng
+const PostCard: React.FC<{ item: Post; userNames: any }> = ({ item, userNames }) => {
+  const [localRating, setLocalRating] = React.useState<number | null>(null);
+  const [avg, setAvg] = React.useState(item.ratingAvg || 0);
+  const [count, setCount] = React.useState(item.ratingCount || 0);
+  const handleRate = async (star: number) => {
+    setLocalRating(star);
+    try {
+      const data = await ratePost(item._id, star);
+      setAvg(data.ratingAvg);
+      setCount(data.ratingCount);
+    } catch {}
+  };
+  const [showContact, setShowContact] = React.useState(false);
+  const [contactInfo, setContactInfo] = React.useState<any>(null);
+  const handleMouseEnter = async () => {
+    setShowContact(true);
+    if (!contactInfo && item.authorId) {
+      try {
+        const user = await getUserById(item.authorId);
+        setContactInfo(user);
+      } catch {}
+    }
+  };
+  const handleMouseLeave = () => setShowContact(false);
+  return (
+    <div style={{
+      border: '1px solid #e0e0e0',
+      borderRadius: 8,
+      padding: 20,
+      backgroundColor: '#fafafa',
+      transition: 'transform 0.2s, box-shadow 0.2s',
+      maxWidth: 1000,
+      width: '66vw',
+      margin: '0 auto',
+      minHeight: 260
+    }}
+      onMouseOver={e => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+      }}
+      onMouseOut={e => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+        <div style={{ flex: 1 }}>
+          <h3 style={{ margin: '0 0 8px 0', color: '#1976d2', fontSize: 18, fontWeight: 'bold' }}>
+            📝 {item.title}
+          </h3>
+          {/* Đánh giá sao */}
+          <div style={{ marginBottom: 8 }}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span
+                key={i}
+                style={{ color: (localRating ? i < localRating : i < avg) ? '#FFD700' : '#ccc', fontSize: 22, cursor: 'pointer' }}
+                onClick={() => handleRate(i + 1)}
+                title={`Đánh giá ${i + 1} sao`}
+              >
+                ★
+              </span>
+            ))}
+            <span style={{ marginLeft: 8, color: '#666', fontSize: 14 }}>
+              {avg.toFixed(1)} ({count} lượt)
+            </span>
+          </div>
+          <p style={{ margin: '0 0 12px 0', color: '#333', lineHeight: 1.5 }}>
+            {item.content}
+          </p>
+          {item.note && (
+            <p style={{ margin: '0 0 8px 0', fontStyle: 'italic', color: '#666', fontSize: 14 }}>
+              💡 {item.note}
+            </p>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
+            <span style={{ background: '#e8f5e8', color: '#2e7d32', padding: '4px 8px', borderRadius: 12, fontSize: 12, fontWeight: 'bold' }}>
+              ✅ Đã duyệt
+            </span>
+            {item.createdAt && !isNaN(Date.parse(item.createdAt)) && (
+              <span style={{ color: '#666', fontSize: 12 }}>
+                📅 {formatDate(item.createdAt)}
+              </span>
+            )}
+            {item.price !== undefined && item.price !== null && (
+              <span style={{ background: '#fffde7', color: '#fbc02d', padding: '4px 8px', borderRadius: 12, fontSize: 12, fontWeight: 'bold' }}>
+                💰 {item.price.toLocaleString()} VNĐ
+              </span>
+            )}
+            {item.location && (
+              <span style={{ background: '#e1f5fe', color: '#0288d1', padding: '4px 8px', borderRadius: 12, fontSize: 12, fontWeight: 'bold' }}>
+                📍 {item.location}
+              </span>
+            )}
+            {item.authorId && userNames[item.authorId] && (
+              <span
+                style={{ background: '#e3f2fd', color: '#1976d2', padding: '4px 8px', borderRadius: 12, fontSize: 12, fontWeight: 'bold', position: 'relative', cursor: 'pointer' }}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                👤 <strong>{userNames[item.authorId]}</strong>
+                {showContact && contactInfo && (
+                  <UserContactPopup user={contactInfo} />
+                )}
+              </span>
+            )}
+            {(!item.authorId || !userNames[item.authorId]) && (
+              <span style={{ background: '#e3f2fd', color: '#1976d2', padding: '4px 8px', borderRadius: 12, fontSize: 12, fontWeight: 'bold' }}>
+                👤 <strong>Unknown User</strong>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      {item.images && item.images.length > 0 && (
+        <div style={{ marginTop: 16 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {item.images.map((img: string, i: number) => (
+              <img
+                key={i}
+                src={img}
+                alt={`Ảnh ${i + 1}`}
+                style={{
+                  width: 200,
+                  height: 200,
+                  objectFit: 'cover',
+                  borderRadius: 6,
+                  border: '1px solid #e0e0e0',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  cursor: 'pointer',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.transform = 'scale(1.08)';
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(25,118,210,0.18)';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+                onClick={() => window.open(img, '_blank')}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Search() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Post[]>([]);
   const [filteredResults, setFilteredResults] = useState<Post[]>([]);
@@ -55,6 +231,7 @@ export default function Search() {
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
   const [modalImg, setModalImg] = useState<string | null>(null);
+  const isAdmin = localStorage.getItem('role') === 'admin';
 
   useEffect(() => {
     handleFilterSearch(1);
@@ -87,6 +264,7 @@ export default function Search() {
       if (minPrice) filters.minPrice = minPrice;
       if (maxPrice) filters.maxPrice = maxPrice;
       if (location) filters.location = location;
+      if (query) filters.keyword = query;
       filters.page = newPage;
       filters.limit = limit;
       filters.status = 'approved'; // Chỉ lấy bài đã duyệt
@@ -100,6 +278,7 @@ export default function Search() {
       await Promise.all(userIds.map(async (id) => {
         if (id) {
           try {
+            // Gọi endpoint mới /api/user-public/:id
             const user = await getUserById(id);
             userNamesMap[id] = user.name;
           } catch {
@@ -136,6 +315,12 @@ export default function Search() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)', padding: '40px 20px' }}>
+      {/* Nút quay lại trang Admin nếu là admin */}
+      {isAdmin && (
+        <div style={{ marginBottom: 24, textAlign: 'right' }}>
+          <button onClick={() => navigate('/admin')} style={{ background: 'linear-gradient(135deg, #1976d2, #64b5f6)', color: 'white', fontWeight: 'bold', border: 'none', borderRadius: 8, padding: '8px 20px', fontSize: 16, cursor: 'pointer' }}>← Quay lại trang Admin</button>
+        </div>
+      )}
       {/* Thanh menu */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
         <h1 style={{ color: '#1976d2', fontWeight: 'bold', fontSize: 32, margin: 0, cursor: 'pointer' }} onClick={() => window.location.reload()}>🏠 FindHouse</h1>
@@ -188,12 +373,6 @@ export default function Search() {
         </div>
       )} */}
       {/* Đảm bảo chỉ còn dòng hiển thị số lượng bài đăng duy nhất: */}
-      <div style={{ textAlign: 'center', color: '#666', marginBottom: 16 }}>
-        <p style={{ margin: 0 }}>
-          Tìm thấy <strong>{total}</strong> bài viết
-          {query && ` cho từ khóa "${query}"`}
-        </p>
-      </div>
       {/* Bộ lọc nâng cao */}
         
         {errorMsg && (
@@ -212,120 +391,9 @@ export default function Search() {
               {query && ` cho từ khóa "${query}"`}
             </p>
           </div> */}
-          <div style={{ display: 'grid', gap: 28, justifyContent: 'center' }}>
-            {filteredResults
-              .filter(item => item.status === 'approved')
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-              .map((item: Post, idx) => (
-              <div key={idx} style={{ 
-                background: 'white',
-                border: '1px solid #e0e0e0', 
-                borderRadius: 16, 
-                padding: 32, 
-                boxShadow: '0 4px 12px rgba(0,0,0,0.13)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                maxWidth: 850,
-                margin: '0 auto'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <h3 style={{ 
-                    margin: '0 0 10px 0', 
-                    color: '#1976d2', 
-                    fontSize: 20,
-                    fontWeight: 'bold'
-                  }}>
-                    📝 {item.title}
-                  </h3>
-                  <div style={{ margin: '0 0 6px 0', color: '#2196f3', fontWeight: 'bold', fontSize: 17 }}>
-                    👤 {item.authorId && userNames[item.authorId] ? userNames[item.authorId] : 'Unknown User'}
-                  </div>
-                  <p style={{ 
-                    margin: '0 0 10px 0', 
-                    color: '#333',
-                    lineHeight: 1.5,
-                    fontSize: 16
-                  }}>
-                    {item.content}
-                  </p>
-                  {item.note && (
-                    <p style={{ 
-                      margin: '0 0 10px 0', 
-                      fontStyle: 'italic', 
-                      color: '#666',
-                      fontSize: 14,
-                      background: '#fff3e0',
-                      padding: 10,
-                      borderRadius: 7
-                    }}>
-                      💡 <strong>Ghi chú:</strong> {item.note}
-                    </p>
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
-                    <span style={{ background: '#e3f2fd', color: '#1976d2', padding: '5px 10px', borderRadius: 13, fontSize: 13, fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      👤 {item.authorId && userNames[item.authorId] ? userNames[item.authorId] : 'Unknown User'}
-                    </span>
-                    <span style={{ background: '#e8f5e8', color: '#2e7d32', borderRadius: 13, fontSize: 13, fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px' }}>
-                      ✅ Đã duyệt
-                    </span>
-                    {item.createdAt && (
-                      <span style={{ background: '#ede7f6', color: '#512da8', borderRadius: 13, fontSize: 13, fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px' }}>
-                        📅 {formatDate(item.createdAt)}
-                      </span>
-                    )}
-                    {item.price && (
-                      <span style={{ background: '#fffde7', color: '#fbc02d', padding: '5px 10px', borderRadius: 13, fontSize: 13, fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        💰 {item.price.toLocaleString()} VNĐ
-                      </span>
-                    )}
-                    {item.location && (
-                      <span style={{ background: '#e1f5fe', color: '#0288d1', padding: '5px 10px', borderRadius: 13, fontSize: 13, fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        📍 {item.location}
-                      </span>
-                    )}
-                  </div>
-                  {item.images && item.images.length > 0 && (
-                    <div style={{ marginTop: 18 }}>
-                      <h4 style={{ margin: '0 0 12px 0', fontSize: 18, color: '#666', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        📸 Hình ảnh ({item.images.length} ảnh):
-                      </h4>
-                      <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
-                        {item.images.map((img: string, i: number) => (
-                          <img 
-                            key={i} 
-                            src={img} 
-                            alt={`Ảnh ${i + 1}`} 
-                            style={{ 
-                              width: 160, 
-                              height: 160, 
-                              objectFit: 'cover', 
-                              borderRadius: 10, 
-                              border: '2px solid #e0e0e0',
-                              cursor: 'pointer',
-                              transition: 'transform 0.2s'
-                            }}
-                            onClick={() => setModalImg(img)}
-                            onMouseOver={(e) => {
-                              e.currentTarget.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseOut={(e) => {
-                              e.currentTarget.style.transform = 'scale(1)';
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+          <div style={{ display: 'grid', gap: 20, justifyContent: 'center' }}>
+            {results.filter(item => item.status === 'approved').map((item: Post, idx) => (
+              <PostCard key={item._id || idx} item={item} userNames={userNames} />
             ))}
             
             {filteredResults.length === 0 && !loading && (

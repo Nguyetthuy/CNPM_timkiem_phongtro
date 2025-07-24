@@ -27,6 +27,7 @@ router.patch('/:id', authenticate, PostController.update); // Update post (khôn
 router.delete('/:id', authenticate, PostController.delete); // Xóa bài đăng
 router.get('/approved', PostController.getApproved);
 router.get('/search', PostController.search);
+router.post('/:id/rate', PostController.ratePost);
 
 // Route để serve ảnh - phải đặt trước /:id để tránh conflict
 router.get('/images/:filename', (req, res) => {

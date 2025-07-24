@@ -5,7 +5,8 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "cors": "^2.8.5",

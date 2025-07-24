@@ -105,6 +105,24 @@ export class PostController {
         return res.status(404).json({ message: 'Post not found' });
       }
 
+      // Xóa file ảnh vật lý nếu có
+      if (post.images && Array.isArray(post.images)) {
+        const fs = require('fs');
+        const path = require('path');
+        post.images.forEach((imgUrl: string) => {
+          // Lấy tên file từ URL
+          const filename = imgUrl.split('/').pop();
+          if (filename) {
+            const filePath = path.join(__dirname, '../../uploads/images', filename);
+            fs.unlink(filePath, (err: any) => {
+              if (err) {
+                console.error('Không thể xóa file:', filePath, err.message);
+              }
+            });
+          }
+        });
+      }
+
       // Chỉ cho phép admin hoặc tác giả bài đăng xóa
       if (userRole !== 'admin' && post.authorId !== userId) {
         return res.status(403).json({ message: 'Unauthorized to delete this post' });
@@ -124,6 +142,27 @@ export class PostController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       res.json({ results, total, page, limit });
+    } catch (error: any) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+  }
+
+  static async ratePost(req: Request, res: Response) {
+    try {
+      const postId = req.params.id;
+      const { rating } = req.body;
+      if (!rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ message: 'Rating phải từ 1 đến 5' });
+      }
+      const post = await PostService.getPostById(postId);
+      if (!post) return res.status(404).json({ message: 'Post not found' });
+      // Thêm rating mới vào mảng ratings
+      post.ratings = post.ratings || [];
+      post.ratings.push(rating);
+      post.ratingCount = post.ratings.length;
+      post.ratingAvg = post.ratings.reduce((a: number, b: number) => a + b, 0) / post.ratingCount;
+      await post.save();
+      res.json({ ratingAvg: post.ratingAvg, ratingCount: post.ratingCount });
     } catch (error: any) {
       res.status(500).json({ message: 'Internal server error', error: error.message });
     }

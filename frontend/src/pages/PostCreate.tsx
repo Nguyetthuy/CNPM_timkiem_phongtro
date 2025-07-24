@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPost } from '../api/post';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,6 +15,19 @@ const PostCreate: React.FC = () => {
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [createdAt, setCreatedAt] = useState('');
+
+  // Mặc định ngày tạo là thời điểm hiện tại khi vào trang
+  useEffect(() => {
+    if (!createdAt) {
+      const now = new Date();
+      // Định dạng yyyy-MM-ddTHH:mm cho input type datetime-local
+      const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+      setCreatedAt(local);
+    }
+    // eslint-disable-next-line
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -59,9 +72,8 @@ const PostCreate: React.FC = () => {
       formData.append('note', note);
       formData.append('price', price);
       formData.append('location', location);
-      if (createdAt) {
-        formData.append('createdAt', new Date(createdAt).toISOString());
-      }
+      // Khi submit, luôn gửi createdAt
+      formData.append('createdAt', new Date(createdAt).toISOString());
       
       // Thêm ảnh vào FormData
       images.forEach(image => {
@@ -104,8 +116,8 @@ const PostCreate: React.FC = () => {
         
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
-              Tiêu đề:
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333', textAlign: 'left' }}>
+              📝 Tiêu đề:
             </label>
             <input 
               value={title} 
@@ -115,7 +127,8 @@ const PostCreate: React.FC = () => {
                 padding: 12, 
                 border: '1px solid #ddd', 
                 borderRadius: 8,
-                fontSize: 16
+                fontSize: 16,
+                textAlign: 'left'
               }} 
               placeholder="Nhập tiêu đề bài đăng..."
               required
@@ -123,8 +136,8 @@ const PostCreate: React.FC = () => {
           </div>
           
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
-              Nội dung:
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333', textAlign: 'left' }}>
+              📄 Nội dung:
             </label>
             <textarea 
               value={content} 
@@ -136,7 +149,8 @@ const PostCreate: React.FC = () => {
                 borderRadius: 8,
                 fontSize: 16,
                 minHeight: 120,
-                resize: 'vertical'
+                resize: 'vertical',
+                textAlign: 'left'
               }} 
               placeholder="Nhập nội dung bài đăng..."
               required
@@ -144,8 +158,8 @@ const PostCreate: React.FC = () => {
           </div>
           
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
-              Ghi chú (tùy chọn):
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333', textAlign: 'left' }}>
+              💡 Ghi chú (tùy chọn):
             </label>
             <input 
               value={note} 
@@ -155,15 +169,16 @@ const PostCreate: React.FC = () => {
                 padding: 12, 
                 border: '1px solid #ddd', 
                 borderRadius: 8,
-                fontSize: 16
+                fontSize: 16,
+                textAlign: 'left'
               }} 
               placeholder="Thêm ghi chú nếu cần..."
             />
           </div>
           
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
-              Giá (VNĐ):
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333', textAlign: 'left' }}>
+              💰 Giá (VNĐ):
             </label>
             <input
               type="number"
@@ -174,7 +189,8 @@ const PostCreate: React.FC = () => {
                 padding: 12,
                 border: '1px solid #ddd',
                 borderRadius: 8,
-                fontSize: 16
+                fontSize: 16,
+                textAlign: 'left'
               }}
               placeholder="Nhập giá..."
               min={0}
@@ -182,8 +198,8 @@ const PostCreate: React.FC = () => {
             />
           </div>
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
-              Vị trí:
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333', textAlign: 'left' }}>
+              📍 Vị trí:
             </label>
             <input
               value={location}
@@ -193,24 +209,25 @@ const PostCreate: React.FC = () => {
                 padding: 12,
                 border: '1px solid #ddd',
                 borderRadius: 8,
-                fontSize: 16
+                fontSize: 16,
+                textAlign: 'left'
               }}
               placeholder="Nhập vị trí..."
               required
             />
           </div>
-          <label style={{ fontWeight: 'bold', marginTop: 12 }}>Ngày tạo bài đăng:</label>
+          <label style={{ fontWeight: 'bold', textAlign: 'left', marginTop: 12 }}>Ngày tạo bài đăng:</label>
           <input
             className="auth-input"
             type="datetime-local"
             value={createdAt}
             onChange={e => setCreatedAt(e.target.value)}
-            style={{ marginBottom: 12 }}
+            style={{ marginBottom: 12, textAlign: 'left' }}
           />
           
           <div style={{ marginBottom: 24 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333' }}>
-              Hình ảnh (tối đa 10 ảnh):
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold', color: '#333', textAlign: 'left' }}>
+              📸 Hình ảnh (tối đa 10 ảnh):
             </label>
             <input 
               type="file" 
@@ -222,7 +239,8 @@ const PostCreate: React.FC = () => {
                 padding: 12, 
                 border: '1px solid #ddd', 
                 borderRadius: 8,
-                fontSize: 16
+                fontSize: 16,
+                textAlign: 'left'
               }}
             />
             
